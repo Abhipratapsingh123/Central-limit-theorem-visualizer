@@ -18,7 +18,7 @@ def get_grade_point(marks):
         return 0
 
 st.title("SGPA Calculator")
-st.markdown("Enter your subjects, marks, and credit hours below to calculate your SGPA.")
+st.markdown("Enter your subjects, marks, and credits below to calculate your SGPA.")
 
 # Input number of subjects
 total_subjects = st.number_input("Enter total number of subjects:", min_value=1, step=1)
