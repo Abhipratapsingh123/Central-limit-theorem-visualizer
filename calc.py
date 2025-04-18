@@ -23,42 +23,52 @@ st.markdown("Enter your subjects, marks, and credit hours below to calculate you
 # Input number of subjects
 total_subjects = st.number_input("Enter total number of subjects:", min_value=1, step=1)
 
-# Initialize data holders
-sub_data = {}
-total_credits = 0
-total_weighted_points = 0
-
 # Form for input
 with st.form("sgpa_form"):
-    for i in range(total_subjects):
+    sub_data = []
+    for i in range(int(total_subjects)):
         st.markdown(f"### Subject {i+1}")
-        subject = st.text_input(f"Enter name for subject {i+1}", key=f"subject_{i}")
-        marks = st.number_input(f"Enter marks for {subject}", min_value=0.0, max_value=100.0, key=f"marks_{i}")
-        credits = st.number_input(f"Enter credits for {subject}", min_value=1, max_value=10, key=f"credits_{i}")
-        grade_point = get_grade_point(marks)
-
-        sub_data[subject] = {
+        subject = st.text_input(f"Subject name", key=f"subject_{i}")
+        marks = st.number_input("Marks", min_value=0.0, max_value=100.0, key=f"marks_{i}")
+        credits = st.number_input("Credits", min_value=1, max_value=10, key=f"credits_{i}")
+        
+        sub_data.append({
+            "Subject": subject,
             "Marks": marks,
-            "Credit": credits,
-            "Grade Point": grade_point
-        }
+            "Credits": credits
+        })
 
     submitted = st.form_submit_button("Calculate SGPA")
 
-# Calculate SGPA after form submission
+# After submission
 if submitted:
-    for subject, details in sub_data.items():
-        total_weighted_points += details["Grade Point"] * details["Credit"]
-        total_credits += details["Credit"]
+    total_weighted_points = 0
+    total_credits = 0
+    detailed_data = []
+
+    for item in sub_data:
+        if item["Subject"].strip() == "":
+            continue  # Skip blank subject names
+        grade_point = get_grade_point(item["Marks"])
+        weighted_point = grade_point * item["Credits"]
+        total_weighted_points += weighted_point
+        total_credits += item["Credits"]
+
+        detailed_data.append({
+            "Subject": item["Subject"],
+            "Marks": item["Marks"],
+            "Credits": item["Credits"],
+            "Grade Point": grade_point
+        })
 
     if total_credits > 0:
         sgpa = total_weighted_points / total_credits
         st.success(f"Your SGPA is: **{round(sgpa, 2)}**")
 
         with st.expander("Detailed Report"):
-            for subject, details in sub_data.items():
+            for item in detailed_data:
                 st.write(
-                    f"**{subject}** - Marks: {details['Marks']} | Credits: {details['Credit']} | Grade Point: {details['Grade Point']}"
+                    f"**{item['Subject']}** - Marks: {item['Marks']} | Credits: {item['Credits']} | Grade Point: {item['Grade Point']}"
                 )
     else:
-        st.warning("Please enter valid credit and marks values.")
+        st.warning("Please enter valid data for at least one subject.")
