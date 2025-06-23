@@ -34,7 +34,7 @@ if uploaded_file is not None:
             # Plotting
             
             fig, ax = plt.subplots()
-            sns.histplot(samples,bins=20, kde=True, ax=ax, edgecolor='black', color='skyblue',line_kws={'color': 'red', 'linewidth': 2})
+            sns.histplot(samples,bins=20, kde=True, ax=ax, edgecolor='black', color='skyblue',kde_kws={'color': 'red', 'linewidth': 2})
             # ax.axvline(samples, color='red', linestyle='--', label=f'Population Mean: {samples:.2f}')
             ax.set_title("Sampling Distribution with KDE")
             ax.set_xlabel("Sample Means")
