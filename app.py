@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+from scipy.stats import gaussian_kde
 
 st.title("Central Limit Theorem Visualizer")
 
@@ -19,25 +20,41 @@ if uploaded_file is not None:
         st.error("No numeric columns found in the dataset.")
     else:
         # Column selection
-        selected_col = st.selectbox("Select a numeric column for sampling", numeric_cols)
+        selected_col = st.selectbox(
+            "Select a numeric column for sampling", numeric_cols)
 
         # Sample size and number of samples
-        sample_size = st.number_input("Sample size (n ≥ 30)", min_value=30, value=50)
-        num_samples = st.number_input("Number of times to extract samples", min_value=1, value=100)
+        sample_size = st.number_input(
+            "Sample size (n ≥ 30)", min_value=30, value=50)
+        num_samples = st.number_input(
+            "Number of times to extract samples", min_value=1, value=100)
 
         if st.button("Generate Sampling Distribution"):
             samples = []
             for _ in range(num_samples):
-                sample = df[selected_col].dropna().sample(sample_size, replace=True)
+                sample = df[selected_col].dropna().sample(
+                    sample_size, replace=True)
                 samples.append(sample.mean())
 
-            # Plotting
-            
+             # Plotting
             fig, ax = plt.subplots()
-            sns.histplot(samples,bins=20, kde=True, ax=ax, edgecolor='black', color='skyblue',kde_kws={'color': 'red', 'linewidth': 2})
-            # ax.axvline(samples, color='red', linestyle='--', label=f'Population Mean: {samples:.2f}')
+
+            # Histogram of sample means
+            sns.histplot(samples, bins=20, ax=ax, edgecolor='black',
+                         color='skyblue', stat='density', alpha=0.6)
+
+            # KDE line using scipy
+            kde = gaussian_kde(samples)
+            x_vals = np.linspace(min(samples), max(samples), 1000)
+            ax.plot(x_vals, kde(x_vals), color='red', linewidth=2, label='KDE')
+
+            # Population mean line
+            pop_mean = df[selected_col].mean()
+            ax.axvline(pop_mean, color='green', linestyle='--',
+                       label=f'Population Mean: {pop_mean:.2f}')
+
             ax.set_title("Sampling Distribution with KDE")
             ax.set_xlabel("Sample Means")
-            ax.set_ylabel("Frequency")
+            ax.set_ylabel("Density")
             ax.legend()
             st.pyplot(fig)
